@@ -14,6 +14,8 @@ import {
     View
 } from 'react-native';
 import Auth0 from 'react-native-auth0';
+// import LoginModal from '../modals/LoginModal'
+import LoginModal from './modals/LoginModal'
 
 var credentials = require('./auth0-credentials');
 const auth0 = new Auth0(credentials);
@@ -21,7 +23,8 @@ const auth0 = new Auth0(credentials);
 export default class Auth0Sample extends Component {
     constructor(props) {
         super(props);
-        this.state = { accessToken: null };
+        this.state = { accessToken: null, modalVisible: false };
+        this.onAuth = this.onAuth.bind(this)
     }
 
     _onLogin = () => {
@@ -57,16 +60,31 @@ export default class Auth0Sample extends Component {
             });
     };
 
+    onPressHandle = () => {
+        this.setState({ modalVisible: true })
+        console.log('login pressed')
+    };
+
+    onAuth = (credentials, profile) => {
+      this.setState({modalVisible: false}, () => 
+      this.props.navigation.navigate('Profile', {credentials: credentials, profile: profile}) )
+    };
+
     render() {
         let loggedIn = this.state.accessToken === null ? false : true;
-        return ( 
-        <View style = { styles.container }>
-            <Text style = { styles.header }> Auth0Sample - Login </Text>    
-            <Text>
-                You are { loggedIn ? '' : 'not ' } logged in . </Text>    
-                <Button onPress = { loggedIn ? this._onLogout : this._onLogin }
-                title = { loggedIn ? 'Log Out' : 'Log In' }/>   
-        </View >
+        return (
+            <View style={styles.container}>
+                <Text style={styles.header}> Auth0Sample - Login </Text>
+                <Text>
+                    You are {loggedIn ? '' : 'not '} logged in . </Text>
+                <Button onPress={loggedIn ? this._onLogout : this._onLogin}
+                    title={loggedIn ? 'Log Out' : 'Log In'} />
+                <Button
+                    onPress={ this.onPressHandle}
+                    title="Log In test embed"
+                />
+                <LoginModal modalVisible={this.state.modalVisible} onAuth={this.onAuth}/>
+            </View >
         );
     }
 }
